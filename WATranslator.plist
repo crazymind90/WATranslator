@@ -1,0 +1,8 @@
+{
+    Filter =     {
+        Bundles =         (
+            "net.whatsapp.WhatsApp",
+            "net.whatsapp.WhatsAppSMB"
+        );
+    };
+}

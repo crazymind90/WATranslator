@@ -1,0 +1,19 @@
+#!/bin/sh
+
+
+cd /var/jb/Library/MobileSubstrate/DynamicLibraries/ && ldid -s WATranslator.dylib WATranslator.dylib
+echo "[+] done";
+exit
+
+
+
+
+
+
+
+
+
+
+
+
+
