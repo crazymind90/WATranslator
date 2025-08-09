@@ -4,6 +4,7 @@
 @interface WATranslationMenuManager : NSObject
 
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *languageMap;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *flagMap;
 @property (nonatomic, strong) NSString *userDefaultsKey;
 
 - (instancetype)initWithUserDefaultsKey:(NSString *)key;

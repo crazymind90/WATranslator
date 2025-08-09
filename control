@@ -1,7 +1,7 @@
 Package: com.cm90.watranslator
 Name: WATranslator
 Depends: mobilesubstrate
-Version: 1.0
+Version: 1.2
 Architecture: iphoneos-arm
 Description: An awesome MobileSubstrate tweak!
 Maintainer: @CrazyMind90
