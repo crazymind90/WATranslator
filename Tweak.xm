@@ -21,6 +21,7 @@
 
 
 %hook WAChatBar
+
 - (void) setupSendButton {
     %orig;
 
@@ -31,7 +32,6 @@
     UIMenu *translationMenu = [menuManager createTranslationMenuWithTextProvider:^NSString *{
         return self.textView.text;
     } translationHandler:^(NSString *text, NSString *fromLang, NSString *toLang) {
-
         [self translateAndSendText:text fromLanguage:fromLang toLanguage:toLang];
     } restoreHandler:nil];
     
@@ -49,8 +49,56 @@
                                     children:menuItems];
     
     _sendButton.menu = mainMenu;
-    _sendButton.showsMenuAsPrimaryAction = YES;
+
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] 
+                                              initWithTarget:self 
+                                              action:@selector(handleLongPress:)];
+    longPress.minimumPressDuration = 0.5; 
+    [_sendButton addGestureRecognizer:longPress];
 }
+
+%new
+- (void)handleLongPress:(UILongPressGestureRecognizer *)gesture {
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        UIButton *_sendButton = [self valueForKey:@"_sendButton"];
+        [_sendButton contextMenuInteraction:nil 
+                     configurationForMenuAtLocation:CGPointZero];
+    }
+}
+
+
+// - (void) setupSendButton {
+//     %orig;
+
+//     UIButton *_sendButton = [self valueForKey:@"_sendButton"];
+    
+//     WATranslationMenuManager *menuManager = [[WATranslationMenuManager alloc] initWithUserDefaultsKey:@"RecentChatBarTranslationLanguages"];
+    
+//     UIMenu *translationMenu = [menuManager createTranslationMenuWithTextProvider:^NSString *{
+//         return self.textView.text;
+//     } translationHandler:^(NSString *text, NSString *fromLang, NSString *toLang) {
+
+//         [self translateAndSendText:text fromLanguage:fromLang toLanguage:toLang];
+//     } restoreHandler:nil];
+    
+//     UIAction *sendAction = [UIAction actionWithTitle:@"Send" 
+//                                             image:[UIImage systemImageNamed:@"paperplane.fill"] 
+//                                         identifier:nil 
+//                                             handler:^(__kindof UIAction * _Nonnull action) {
+//         [self sendButtonTapped:_sendButton];
+//     }];
+    
+//     NSMutableArray *menuItems = [translationMenu.children mutableCopy];
+//     [menuItems addObject:sendAction];
+    
+//     UIMenu *mainMenu = [UIMenu menuWithTitle:@"" 
+//                                     children:menuItems];
+    
+//     _sendButton.menu = mainMenu;
+//     _sendButton.showsMenuAsPrimaryAction = YES;
+// }
+
+
 
 %new
 - (void)translateAndSendText:(NSString *)text fromLanguage:(NSString *)fromLang toLanguage:(NSString *)toLang {
