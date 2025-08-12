@@ -5,6 +5,9 @@ An instant translation tweak for WhatsApp
 - Translate sent msgs
 - Translate received msgs
 
+## To activate the menu
+- Long press on send button
+
 ## Supports iOS 15 and 16 , Dopamine & RootHide
 
 ### ScreenShot
