@@ -156,21 +156,31 @@ static WATranslationMenuManager *messageCellMenuManager;
     
     if (!self.focusedMessage.text) return;
     
-    if ([self.contentView viewWithTag:9999]) {
-
-        [[self.contentView viewWithTag:9999] removeFromSuperview];
+    UIView *oldButton = [self.contentView viewWithTag:9999];
+    if (oldButton) {
+        [oldButton removeFromSuperview];
     }
     
     if (self.subviews.count == 0) return;
-    if (self.subviews[0].subviews.count == 0) return;
     
-    UIView *chatBubble = self.subviews[0].subviews[0];
+    UIView *chatBubble = nil;
+    for (UIView *subview in self.subviews) {
+        if (subview.subviews.count > 0) {
+            chatBubble = subview.subviews.firstObject;
+            break;
+        }
+    }
+    if (!chatBubble) return;
+    
     CGFloat bubbleCenterX = CGRectGetMidX(chatBubble.frame);
     CGFloat cellWidth = self.frame.size.width;
     CGFloat cellCenterX = cellWidth / 2.0;
     BOOL isFromMe = bubbleCenterX > cellCenterX;
     
-
+    UIUserInterfaceLayoutDirection direction =
+        [UIView userInterfaceLayoutDirectionForSemanticContentAttribute:self.semanticContentAttribute];
+    BOOL isRTL = (direction == UIUserInterfaceLayoutDirectionRightToLeft);
+    
     if (!messageCellMenuManager) {
         messageCellMenuManager = [[WATranslationMenuManager alloc] initWithUserDefaultsKey:@"RecentMessageTranslationLanguages"];
     }
@@ -183,24 +193,21 @@ static WATranslationMenuManager *messageCellMenuManager;
     translateButton.translatesAutoresizingMaskIntoConstraints = NO;
     translateButton.showsMenuAsPrimaryAction = YES;
     
-
     translateButton.menu = [messageCellMenuManager createTranslationMenuWithTextProvider:^NSString *{
         return self.focusedMessage.text;
     } translationHandler:^(NSString *text, NSString *fromLang, NSString *toLang) {
         _gMsg = self.focusedMessage;
         [self translateText:text from:fromLang to:toLang];
         
-
         dispatch_async(dispatch_get_main_queue(), ^{
-            UIView *oldButton = [self.contentView viewWithTag:9999];
-            if (oldButton) {
-                [oldButton removeFromSuperview];
+            UIView *oldButton2 = [self.contentView viewWithTag:9999];
+            if (oldButton2) {
+                [oldButton2 removeFromSuperview];
                 [self setNeedsLayout];
                 [self layoutIfNeeded];
             }
         });
     } restoreHandler:^{
-
         NSString *originalText = self.focusedMessage.text;
         NSString *translationMarker = @"~[Translation] :";
         if ([originalText containsString:translationMarker]) {
@@ -214,22 +221,24 @@ static WATranslationMenuManager *messageCellMenuManager;
     
     [self.contentView addSubview:translateButton];
     
-    if (isFromMe) {
+
+    if (isFromMe ^ isRTL) {
         [NSLayoutConstraint activateConstraints:@[
-            [translateButton.leadingAnchor constraintEqualToAnchor:chatBubble.leadingAnchor constant:-40],
-            [translateButton.centerYAnchor constraintEqualToAnchor:chatBubble.centerYAnchor constant:0],
+            [translateButton.leadingAnchor constraintEqualToAnchor:chatBubble.leadingAnchor constant:-60],
+            [translateButton.centerYAnchor constraintEqualToAnchor:chatBubble.centerYAnchor],
             [translateButton.widthAnchor constraintEqualToConstant:30],
             [translateButton.heightAnchor constraintEqualToConstant:30]
         ]];
     } else {
         [NSLayoutConstraint activateConstraints:@[
-            [translateButton.trailingAnchor constraintEqualToAnchor:chatBubble.trailingAnchor constant:40],
-            [translateButton.centerYAnchor constraintEqualToAnchor:chatBubble.centerYAnchor constant:0],
+            [translateButton.trailingAnchor constraintEqualToAnchor:chatBubble.trailingAnchor constant:60],
+            [translateButton.centerYAnchor constraintEqualToAnchor:chatBubble.centerYAnchor],
             [translateButton.widthAnchor constraintEqualToConstant:30],
             [translateButton.heightAnchor constraintEqualToConstant:30]
         ]];
     }
 }
+
 
 %new
 - (void)translateText:(NSString *)text from:(NSString *)fromLang to:(NSString *)toLang {
